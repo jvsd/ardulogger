@@ -38,7 +38,7 @@ class serial_publisher(object):
 
         self.marker=zmq_context.socket(zmq.SUB)
         self.marker.setsockopt(zmq.SUBSCRIBE,'')
-        self.marker.connect('tcp://localhost:5001')
+        self.marker.connect('tcp://192.168.0.114:4999')
         self.mark_poller = zmq.Poller()
         self.mark_poller.register(self.marker,zmq.POLLIN)
         self.mark = 0.0
@@ -71,6 +71,11 @@ class serial_publisher(object):
 
     def run(self):
         self.time = datetime.datetime.now().isoformat()
+        s = dict(self.mark_poller.poll(0))
+        if s:
+            if s.get(self.marker) == zmq.POLLIN:
+                self.mark = float(self.marker.recv())
+                print "CHANGED MARKER"
         if self.s_type==0:
             temp_buffer = self.ser.read(self.ser.inWaiting())
             self.udp_sock.sendto(temp_buffer,self.addr)
@@ -97,12 +102,12 @@ class serial_publisher(object):
 
                     self.sent_lines+=1
                     print msg.get_fieldnames()
-                    self.log_data(msg)
+                    #self.log_data(msg)
                     msgd = msg.to_dict()
                     msgd['ctime'] = self.time
                     msgd['mark'] = self.mark
                     self.data_server.send_json(msgd)
-                    print 'sent'
+                    print 'Mark:'+str(self.mark)
         except:
             print 'caught exception', sys.exc_info()[0]
             self.error_lines+=1
@@ -117,10 +122,6 @@ class serial_publisher(object):
 
 
     def log_data(self,mavlink_msg):
-        s = dict(self.mark_poller.poll(0))
-        if s:
-            if s.get(self.marker) == zmq.POLLIN:
-                self.mark = float(self.marker.recv())
 
         j = mavlink_msg.to_json()
         self.log_file.write(j)
