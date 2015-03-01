@@ -42,8 +42,8 @@ class serial_publisher(object):
         self.mark_poller = zmq.Poller()
         self.mark_poller.register(self.marker,zmq.POLLIN)
         self.mark = 0.0
-	self.error_lines = 0
-	self.sent_lines = 0
+        self.error_lines = 0
+        self.sent_lines = 0
         self.time = 0
 
         
@@ -72,7 +72,9 @@ class serial_publisher(object):
     def run(self):
         self.time = datetime.datetime.now().isoformat()
         if self.s_type==0:
-            self.buffer=self.buffer + self.ser.read(self.ser.inWaiting())
+            temp_buffer = self.ser.read(self.ser.inWaiting())
+            self.udp_sock.sendto(temp_buffer,self.addr)
+            self.buffer = self.buffer + temp_buffer
         elif self.s_type==1:
             print 'waiting to recv...'
             self.buffer=self.buffer + self.sock.recv(1024)
@@ -94,10 +96,14 @@ class serial_publisher(object):
                             self.server.send(msg.to_json())
 
                     self.sent_lines+=1
-                    self.log_data(msg)
-                    self.data_server.send(msg.to_json())
                     print msg.get_fieldnames()
+                    self.log_data(msg)
+                    msgd = msg.to_dict()
+                    msgd['ctime'] = self.time
+                    self.data_server.send_json(msgd)
+                    print 'sent'
         except:
+            print 'caught exception', sys.exc_info()[0]
             self.error_lines+=1
 
 
