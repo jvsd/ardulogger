@@ -1,4 +1,5 @@
 import struct
+import json
 import socket
 import zmq
 import serial
@@ -12,6 +13,7 @@ sock.connect('tcp://192.168.0.150:5050')
 sock.setsockopt(zmq.SUBSCRIBE,'')
 log_file = open('ardupilot.log','a')
 
-while(True)
-msg = sock.recv_json()
-log_file.write(msg + "\n")
+while(True):
+	msg = sock.recv_json()
+	json.dump(msg,log_file)
+	log_file.write("\n")
