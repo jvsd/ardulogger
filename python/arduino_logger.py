@@ -77,10 +77,10 @@ class serial_publisher(object):
             print 'waiting to recv...'
             self.buffer=self.buffer + self.sock.recv(1024)
         elif self.s_type==2:
-            messages = subscriber.recv_multipart()
+            messages = self.subscriber.recv_multipart()
             self.time = messages[0]
             temp_buffer = messages[1]
-            udp_sock.sendto(temp_buffer,self.addr)
+            self.udp_sock.sendto(temp_buffer,self.addr)
             self.buffer = self.buffer + temp_buffer
 
         if len(self.buffer) > 0 and self.sent_lines < 10:
