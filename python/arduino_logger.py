@@ -126,7 +126,7 @@ class serial_publisher(object):
 
 #Requires (1)scriptname (2)zmq_port (3)serial_port (4)serial_baud
 if __name__=='__main__':
-    if len(sys.argv) != 5:
+    if len(sys.argv) != 7:
         print 'input arguments are s_type zmq_port serial_port serial_baud udp_client udp_port'
         sys.exit()
     else:
