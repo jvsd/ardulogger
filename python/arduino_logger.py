@@ -94,7 +94,7 @@ class serial_publisher(object):
         else:
             self.buffer = ''
 
-        print "received: " + self.sent_lines + 'In buffer: ' + str(len(self.buffer))
+        #print "received: " + str(self.sent_lines) + 'In buffer: ' + str(len(self.buffer))
 
 
     def log_data(self,mavlink_msg):
