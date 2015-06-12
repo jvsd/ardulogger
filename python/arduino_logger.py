@@ -83,8 +83,6 @@ class serial_publisher(object):
             self.udp_sock.sendto(temp_buffer,self.addr)
             self.buffer = self.buffer + temp_buffer
 
-        if len(self.buffer) > 0 and self.sent_lines < 10:
-            print self.buffer
         try:
             messages = self.mav.parse_buffer(self.buffer)
             if messages:
