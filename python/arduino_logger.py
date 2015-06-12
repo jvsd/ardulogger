@@ -23,7 +23,7 @@ class fifo(object):
         return self.buf.pop(0)
 
 class serial_publisher(object):
-    def __init__(self,s_type,zmq_context,port,serial_port,serial_baud):
+    def __init__(self,s_type,zmq_context,port,serial_port,serial_baud,udp_client,udp_port):
         self.s_type=s_type
         self.zmq_context = zmq_context
         self.server=zmq_context.socket(zmq.REP)
@@ -32,6 +32,9 @@ class serial_publisher(object):
         self.server.bind('tcp://*:'+str(int(port)+1))
         self.poller = zmq.Poller()
         self.poller.register(self.server,zmq.POLLIN)
+        self.udp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.addr =(str(udp_client),int(udp_port))
+
 
         self.marker=zmq_context.socket(zmq.SUB)
         self.marker.setsockopt(zmq.SUBSCRIBE,'')
@@ -56,6 +59,11 @@ class serial_publisher(object):
         elif s_type == 1:
             self.sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
             self.sock.connect(("192.168.0.113",2000))
+        elif s_type == 2:
+            self.subscriber = self.zmq_context.socket(zmq.SUB)
+            self.subscriber.setsockopt(zmq.SUBSCRIBE,'')
+            self.subscriber.connect('tcp://192.168.0.150:4002')
+
         self.fifo = fifo()
         self.mav = mavlink.MAVLink(self.fifo)
         self.buffer = ''
@@ -68,6 +76,12 @@ class serial_publisher(object):
         elif self.s_type==1:
             print 'waiting to recv...'
             self.buffer=self.buffer + self.sock.recv(1024)
+        elif self.s_type==2:
+            messages = subscriber.recv_multipart()
+            self.time = messages[0]
+            temp_buffer = messages[1]
+            udp_sock.sendto(temp_buffer,self.addr)
+            self.buffer = self.buffer + temp_buffer
 
         if len(self.buffer) > 0 and self.sent_lines < 10:
             print self.buffer
@@ -113,15 +127,17 @@ class serial_publisher(object):
 #Requires (1)scriptname (2)zmq_port (3)serial_port (4)serial_baud
 if __name__=='__main__':
     if len(sys.argv) != 5:
-        print 'input arguments are s_type zmq_port serial_port serial_baud'
+        print 'input arguments are s_type zmq_port serial_port serial_baud udp_client udp_port'
         sys.exit()
     else:
         s_type = int(sys.argv[1])
         zmq_port = sys.argv[2]
         serial_port = sys.argv[3]
         serial_baud = sys.argv[4]
+        udp_client = sys.argv[5]
+        udp_port = sys.argv[6]
         
     cont = zmq.Context()
-    sp = serial_publisher(s_type,cont,zmq_port,serial_port,serial_baud)
+    sp = serial_publisher(s_type,cont,zmq_port,serial_port,serial_baud,udp_client,udp_port)
     while(True):
         sp.run()
