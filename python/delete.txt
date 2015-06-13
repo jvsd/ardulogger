@@ -1,0 +1,3 @@
+{"ctime": "2015-03-01T22:17:11.579819", "base_mode": 17, "system_status": 2, "custom_mode": 16, "autopilot": 3, "mavpackettype": "HEARTBEAT", "type": 1, "mavlink_version": 3}
+{"ctime": "2015-03-01T22:17:11.579819", "base_mode": 17, "system_status": 2, "custom_mode": 16, "autopilot": 3, "mavpackettype": "HEARTBEAT", "type": 1, "mavlink_version": 3}
+{"ctime": "2015-03-01T22:17:11.579819", "base_mode": 17, "system_status": 2, "custom_mode": 16, "autopilot": 3, "mavpackettype": "HEARTBEAT", "type": 1, "mavlink_version": 3}

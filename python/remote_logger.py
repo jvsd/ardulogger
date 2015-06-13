@@ -1,4 +1,5 @@
 import struct
+import json
 import socket
 import zmq
 import serial
@@ -14,4 +15,5 @@ log_file = open('ardupilot.log','a')
 
 while(True)
 msg = sock.recv_json()
-log_file.write(msg + "\n")
+json.dump(msg,log_file)
+log_file.write("\n")
