@@ -100,6 +100,7 @@ class serial_publisher(object):
                     self.log_data(msg)
                     msgd = msg.to_dict()
                     msgd['ctime'] = self.time
+                    msgd['mark'] = self.mark
                     self.data_server.send_json(msgd)
                     print 'sent'
         except:
